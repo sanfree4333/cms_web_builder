@@ -16,6 +16,8 @@ class ActivityLog extends Model
         'portfolio_id',
         'aksi',
         'keterangan_perubahan',
+        'action',
+        'description',
     ];
 
     protected $casts = [
