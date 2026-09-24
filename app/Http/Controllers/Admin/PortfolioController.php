@@ -20,8 +20,12 @@ class PortfolioController extends Controller
         ActivityLog::create([
             'admin_id'             => Auth::guard('admin')->id(),
             'portfolio_id'         => $portfolioId,
+            // Indonesian-named columns (used across app)
             'aksi'                 => $aksi,
             'keterangan_perubahan' => $keterangan,
+            // English-named columns (existing schema from original migration)
+            'action'               => $aksi,
+            'description'          => $keterangan,
         ]);
     }
 
