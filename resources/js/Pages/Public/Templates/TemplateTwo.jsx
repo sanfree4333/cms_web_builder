@@ -1,8 +1,4 @@
-/**
- * Template 2 — Modern Equipment Rental (Emerald / Forest Green)
- * Tema: jasa sewa profesional. Header bersih, profil usaha, jaminan kebersihan,
- * tabel paket sewa (Paket 2 Orang / 4 Orang), katalog produk, tombol WA hijau.
- */
+import React from 'react';
 
 function formatRp(n) {
     return new Intl.NumberFormat('id-ID', {
@@ -10,6 +6,7 @@ function formatRp(n) {
     }).format(n);
 }
 
+// ── WhatsApp helpers ──────────────────────────────────────────────────────────
 function waUrl(phone, msg) {
     return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
 }
@@ -22,256 +19,197 @@ function WaIcon({ cls = 'w-5 h-5' }) {
     );
 }
 
-// ── Paket sewa statis (otomatis dari produk jika tersedia) ────────────────────
-function buildPaket(products, phone) {
-    // Ambil 2 produk featured sebagai paket, fallback ke 2 produk pertama
-    const pool = [...products.filter(p => p.is_featured), ...products.filter(p => !p.is_featured)];
-    if (pool.length === 0) return [];
-    const paket = [
-        {
-            nama: 'Paket 2 Orang',
-            desc: 'Cocok untuk weekend getaway berdua',
-            items: pool.slice(0, Math.min(3, pool.length)).map(p => p.nama_produk),
-            harga: pool.slice(0, Math.min(3, pool.length)).reduce((s, p) => s + p.harga_sewa_per_hari, 0),
-            msg: `Halo kak, saya ingin pesan *Paket 2 Orang* dari ${pool[0]?.nama_produk ?? 'katalog Anda'}. Boleh info lebih lanjut?`,
-            badge: null,
-        },
-        {
-            nama: 'Paket 4 Orang',
-            desc: 'Ideal untuk grup camping bareng teman',
-            items: pool.slice(0, Math.min(5, pool.length)).map(p => p.nama_produk),
-            harga: pool.slice(0, Math.min(5, pool.length)).reduce((s, p) => s + p.harga_sewa_per_hari, 0) * 1.8,
-            msg: `Halo kak, saya ingin pesan *Paket 4 Orang*. Boleh info harga dan ketersediaannya?`,
-            badge: 'Paling Diminati',
-        },
-    ];
-    return paket;
-}
-
-export default function TemplateTwo({ portfolio }) {
-    const { nama_usaha, bio_deskripsi, nomor_whatsapp, logo_url, banner_url, products = [] } = portfolio;
-    const mainMsg  = `Halo kak, saya ingin menyewa alat camping dari *${nama_usaha}*. Boleh info lebih lanjut?`;
-    const paketList = buildPaket(products, nomor_whatsapp);
-
+// ── Product Card (Industrial Style) ──────────────────────────────────────────
+function ProductCard({ p, phone }) {
+    const available = p.stok_tersedia > 0;
+    const msg = `Halo kak, saya ingin membeli *${p.nama_produk}* batu nunggul. Apakah tersedia?`;
+    
     return (
-        <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'system-ui', sans-serif" }}>
-
-            {/* ── Header ─────────────────────────────────────────────────── */}
-            <header className="bg-white shadow-sm sticky top-0 z-40">
-                <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                        {logo_url
-                            ? <img src={logo_url} alt="Logo" className="w-11 h-11 rounded-2xl object-cover shrink-0" />
-                            : <div className="w-11 h-11 rounded-2xl bg-emerald-600 text-white font-black text-lg flex items-center justify-center shrink-0">
-                                {nama_usaha.charAt(0)}
-                              </div>
-                        }
-                        <div className="min-w-0">
-                            <p className="font-black text-gray-800 text-base truncate">{nama_usaha}</p>
-                            <p className="text-emerald-600 text-xs font-medium">Rental Alat Camping & Outdoor</p>
-                        </div>
-                    </div>
-                    <a href={waUrl(nomor_whatsapp, mainMsg)} target="_blank" rel="noopener noreferrer"
-                        className="shrink-0 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold px-5 py-2.5 rounded-full transition shadow-md shadow-emerald-200 active:scale-95">
-                        <WaIcon cls="w-4 h-4" />
-                        Hubungi Kami
-                    </a>
-                </div>
-            </header>
-
-            {/* ── Hero Banner ─────────────────────────────────────────────── */}
-            <section className="relative overflow-hidden bg-emerald-900" style={{ minHeight: '320px' }}>
-                {banner_url && (
-                    <img src={banner_url} alt="Banner"
-                        className="absolute inset-0 w-full h-full object-cover opacity-40" />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/90 to-emerald-800/50" />
-                <div className="relative max-w-5xl mx-auto px-4 py-16 flex flex-col gap-4">
-                    <span className="inline-flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full w-fit">
-                        🌿 Equipment Rental Profesional
+        <div className="group relative flex flex-col border-2 border-zinc-900 bg-white transition-transform hover:-translate-y-1.5 hover:shadow-[6px_6px_0px_#ea580c]">
+            <div className="relative aspect-square border-b-2 border-zinc-900 bg-zinc-100 overflow-hidden">
+                {p.is_featured && (
+                    <span className="absolute left-0 top-4 z-10 bg-orange-600 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white border-y-2 border-r-2 border-zinc-900">
+                        Populer
                     </span>
-                    <h1 className="text-3xl sm:text-5xl font-black text-white max-w-xl leading-tight">{nama_usaha}</h1>
-                    <p className="text-emerald-100 text-sm max-w-lg leading-relaxed">{bio_deskripsi}</p>
-                    <a href={waUrl(nomor_whatsapp, mainMsg)} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-6 py-3 rounded-full w-fit transition shadow-xl active:scale-95">
-                        <WaIcon />
-                        Cek Ketersediaan via WhatsApp
-                    </a>
-                </div>
-            </section>
-
-            {/* ── Jaminan Kualitas ─────────────────────────────────────────── */}
-            <section className="bg-white border-b border-gray-100">
-                <div className="max-w-5xl mx-auto px-4 py-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    {[
-                        { icon: '🧼', title: 'Steril & Bersih', desc: 'Dicuci tiap selesai pakai' },
-                        { icon: '🔧', title: 'Terawat',         desc: 'Dicek sebelum disewa' },
-                        { icon: '🚚', title: 'Antar-Jemput',    desc: 'Tersedia di area tertentu' },
-                        { icon: '💬', title: 'Fast Response',   desc: 'Balas chat dalam 1 jam' },
-                    ].map(f => (
-                        <div key={f.title} className="flex flex-col items-center text-center p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
-                            <span className="text-3xl mb-2">{f.icon}</span>
-                            <p className="font-bold text-gray-800 text-sm">{f.title}</p>
-                            <p className="text-gray-500 text-xs mt-0.5">{f.desc}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            <div className="max-w-5xl mx-auto px-4 py-10 space-y-12">
-
-                {/* ── Tabel Paket Sewa ────────────────────────────────────── */}
-                {paketList.length > 0 && (
-                    <section>
-                        <h2 className="text-xl font-black text-gray-800 mb-2">Paket Sewa</h2>
-                        <p className="text-gray-500 text-sm mb-6">Pilih paket yang sesuai kebutuhan trip kamu</p>
-                        <div className="grid sm:grid-cols-2 gap-5">
-                            {paketList.map((paket) => (
-                                <div key={paket.nama}
-                                    className={`rounded-2xl border-2 p-6 relative overflow-hidden transition hover:shadow-lg ${
-                                        paket.badge
-                                            ? 'border-emerald-500 bg-emerald-50'
-                                            : 'border-gray-200 bg-white'
-                                    }`}>
-                                    {paket.badge && (
-                                        <span className="absolute top-3 right-3 bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                                            {paket.badge}
-                                        </span>
-                                    )}
-                                    <h3 className="font-black text-gray-800 text-lg">{paket.nama}</h3>
-                                    <p className="text-gray-500 text-xs mt-0.5 mb-4">{paket.desc}</p>
-                                    {/* Item list */}
-                                    <ul className="space-y-1.5 mb-5">
-                                        {paket.items.map(item => (
-                                            <li key={item} className="flex items-center gap-2 text-sm text-gray-700">
-                                                <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs shrink-0">✓</span>
-                                                {item}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    {/* Harga */}
-                                    <div className="flex items-end justify-between gap-3 pt-4 border-t border-gray-100">
-                                        <div>
-                                            <p className="text-2xl font-black text-emerald-700">{formatRp(paket.harga)}</p>
-                                            <p className="text-xs text-gray-400">estimasi / hari</p>
-                                        </div>
-                                        <a href={waUrl(nomor_whatsapp, paket.msg)} target="_blank" rel="noopener noreferrer"
-                                            className={`flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl transition active:scale-95 ${
-                                                paket.badge
-                                                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-200'
-                                                    : 'bg-gray-800 hover:bg-gray-700 text-white'
-                                            }`}>
-                                            <WaIcon cls="w-4 h-4" />
-                                            Pesan
-                                        </a>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
                 )}
-
-                {/* ── Katalog Satuan ──────────────────────────────────────── */}
-                {products.length > 0 && (
-                    <section>
-                        <h2 className="text-xl font-black text-gray-800 mb-2">Sewa Satuan</h2>
-                        <p className="text-gray-500 text-sm mb-6">Butuh alat tertentu saja? Sewa per item, harga per hari</p>
-                        <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="bg-gray-50 border-b border-gray-100 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                        <th className="px-5 py-3">Nama Alat</th>
-                                        <th className="px-5 py-3">Kategori</th>
-                                        <th className="px-5 py-3 text-right">Harga / Hari</th>
-                                        <th className="px-5 py-3 text-center">Stok</th>
-                                        <th className="px-5 py-3 text-center">Pesan</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50">
-                                    {products.map(p => (
-                                        <tr key={p.id} className="hover:bg-gray-50 transition">
-                                            <td className="px-5 py-3.5">
-                                                <div className="flex items-center gap-3">
-                                                    {p.gambar_url
-                                                        ? <img src={p.gambar_url} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0 border border-gray-100" />
-                                                        : <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 text-xs font-bold flex items-center justify-center shrink-0">
-                                                            {p.nama_produk.charAt(0)}
-                                                          </div>
-                                                    }
-                                                    <div>
-                                                        <p className="font-semibold text-gray-800">{p.nama_produk}</p>
-                                                        {p.is_featured && <span className="text-[10px] text-emerald-600 font-bold">★ Populer</span>}
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-5 py-3.5 text-gray-500 capitalize text-xs">
-                                                {p.kategori.replace(/_/g, ' ').toLowerCase()}
-                                            </td>
-                                            <td className="px-5 py-3.5 text-right font-bold text-emerald-700">
-                                                {formatRp(p.harga_sewa_per_hari)}
-                                            </td>
-                                            <td className="px-5 py-3.5 text-center">
-                                                <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${
-                                                    p.stok_tersedia > 0
-                                                        ? 'bg-emerald-100 text-emerald-700'
-                                                        : 'bg-red-100 text-red-600'
-                                                }`}>
-                                                    {p.stok_tersedia > 0 ? `${p.stok_tersedia} unit` : 'Habis'}
-                                                </span>
-                                            </td>
-                                            <td className="px-5 py-3.5 text-center">
-                                                {p.stok_tersedia > 0
-                                                    ? <a href={waUrl(nomor_whatsapp, `Halo kak, saya ingin menyewa *${p.nama_produk}*. Apakah tersedia?`)}
-                                                        target="_blank" rel="noopener noreferrer"
-                                                        className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">
-                                                        <WaIcon cls="w-3.5 h-3.5" /> Sewa
-                                                      </a>
-                                                    : <span className="text-xs text-gray-400">—</span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
+                {!available && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-900/80 backdrop-blur-sm">
+                        <span className="border-2 border-white bg-transparent px-4 py-1.5 text-sm font-black uppercase text-white tracking-wider">Habis</span>
+                    </div>
                 )}
-
-                {products.length === 0 && (
-                    <div className="text-center py-16 text-gray-400">
-                        <p className="text-5xl mb-3">🏕️</p>
-                        <p className="text-sm">Katalog alat sewa akan segera ditampilkan.</p>
+                {p.gambar_url ? (
+                    <img src={p.gambar_url} alt={p.nama_produk} className="h-full w-full object-cover grayscale-[20%] transition duration-500 group-hover:scale-105 group-hover:grayscale-0" />
+                ) : (
+                    <div className="flex h-full w-full items-center justify-center text-zinc-300">
+                        <svg className="h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1}>
+                            <path strokeLinecap="square" strokeLinejoin="miter" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
                     </div>
                 )}
             </div>
 
-            {/* ── Footer ──────────────────────────────────────────────────── */}
-            <footer className="bg-gray-900 text-white py-10 mt-8">
-                <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-6">
-                    <div className="flex items-center gap-3">
-                        {logo_url
-                            ? <img src={logo_url} alt="" className="w-10 h-10 rounded-xl object-cover" />
-                            : <div className="w-10 h-10 rounded-xl bg-emerald-700 text-white font-black text-lg flex items-center justify-center">{nama_usaha.charAt(0)}</div>
-                        }
+            <div className="flex flex-col flex-grow p-4 space-y-4">
+                <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-600">
+                        {p.kategori.replace(/_/g, ' ')}
+                    </p>
+                    <h3 className="mt-1 text-lg font-black leading-tight text-zinc-900 uppercase line-clamp-2">{p.nama_produk}</h3>
+                </div>
+
+                <div className="mt-auto pt-4 border-t-2 border-dashed border-zinc-200 flex items-end justify-between gap-3">
+                    <div>
+                        <p className="text-xl font-black tracking-tight text-zinc-900">{formatRp(p.harga_sewa_per_hari)}</p>
+                        <p className="text-[11px] font-bold uppercase text-zinc-500 tracking-wider">Per Unit</p>
+                    </div>
+
+                    {available ? (
+                        <a href={waUrl(phone, msg)} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center justify-center h-10 w-10 border-2 border-zinc-900 bg-orange-500 text-white transition-colors hover:bg-zinc-900 hover:text-white">
+                            <WaIcon cls="w-5 h-5" />
+                        </a>
+                    ) : (
+                        <span className="px-3 py-1.5 text-[10px] font-black uppercase text-zinc-400 border-2 border-zinc-200">Kosong</span>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ── Main Template ─────────────────────────────────────────────────────────────
+export default function TemplateTwo({ portfolio }) {
+    const { nama_usaha, bio_deskripsi, nomor_whatsapp, logo_url, banner_url, products = [] } = portfolio;
+    const featured = products.filter(p => p.is_featured);
+    const regular  = products.filter(p => !p.is_featured);
+    const mainWaMsg = `Halo kak, saya ingin membeli batu nunggul dari *${nama_usaha}*. Boleh info lebih lanjut?`;
+
+    return (
+        <div className="min-h-screen bg-[#f4f4f5] text-zinc-900 selection:bg-orange-500 selection:text-white" style={{ fontFamily: "'Space Grotesk', 'system-ui', sans-serif" }}>
+            
+            {/* Navbar - Solid Line Design */}
+            <nav className="sticky top-0 z-50 border-b-2 border-zinc-900 bg-[#f4f4f5]">
+                <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
+                    <div className="flex items-center gap-4">
+                        {logo_url ? (
+                            <img src={logo_url} alt="Logo" className="h-12 w-12 border-2 border-zinc-900 object-cover shrink-0" />
+                        ) : (
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-zinc-900 bg-zinc-900 text-xl font-black text-white">
+                                {nama_usaha.charAt(0)}
+                            </div>
+                        )}
                         <div>
-                            <p className="font-bold text-sm">{nama_usaha}</p>
-                            <p className="text-gray-400 text-xs">© {new Date().getFullYear()}</p>
+                            <p className="text-lg font-black uppercase tracking-tight text-zinc-900">{nama_usaha}</p>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-600">Material Supply</p>
                         </div>
                     </div>
-                    <a href={waUrl(nomor_whatsapp, mainMsg)} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-full transition">
-                        <WaIcon cls="w-4 h-4" />
-                        WhatsApp: {nomor_whatsapp}
+
+                    <a href={waUrl(nomor_whatsapp, mainWaMsg)} target="_blank" rel="noopener noreferrer"
+                        className="hidden sm:inline-flex border-2 border-zinc-900 bg-orange-500 px-6 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-[4px_4px_0px_#18181b] transition-all hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#18181b]">
+                        Hubungi Kami
                     </a>
                 </div>
+            </nav>
+
+            {/* Hero Section - Split Layout */}
+            <section className="mx-auto max-w-7xl border-b-2 border-zinc-900 lg:flex">
+                <div className="flex flex-col justify-center border-b-2 border-zinc-900 lg:w-1/2 lg:border-b-0 lg:border-r-2 lg:border-zinc-900 p-8 py-16 lg:p-16">
+                    <div className="mb-6 inline-block border-2 border-zinc-900 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.15em]">
+                        ⚡ Penyedia Batu Nunggul
+                    </div>
+                    
+                    <h1 className="text-5xl font-black uppercase leading-[1.1] tracking-tight text-zinc-900 sm:text-6xl lg:text-7xl">
+                        Solid. <br/>
+                        <span className="text-transparent" style={{ WebkitTextStroke: '2px #18181b' }}>Tangguh.</span><br/>
+                        Kuat.
+                    </h1>
+                    
+                    <p className="mt-6 max-w-md text-base font-medium leading-relaxed text-zinc-600 border-l-4 border-orange-500 pl-4">
+                        {bio_deskripsi}
+                    </p>
+
+                    <div className="mt-10 flex flex-wrap gap-4">
+                        <a href={waUrl(nomor_whatsapp, mainWaMsg)} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-2 border-2 border-zinc-900 bg-zinc-900 px-8 py-4 text-sm font-black uppercase tracking-wider text-white transition-all hover:bg-orange-500">
+                            <WaIcon /> Order Sekarang
+                        </a>
+                    </div>
+                </div>
+
+                <div className="relative lg:w-1/2 min-h-[400px]">
+                    {banner_url ? (
+                        <img src={banner_url} alt="Banner" className="absolute inset-0 h-full w-full object-cover grayscale-[30%]" />
+                    ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-zinc-200">
+                            <div className="text-center font-black uppercase text-zinc-400">
+                                <p className="text-6xl mb-4">🏗️</p>
+                                <p className="text-xl tracking-widest">Image Area</p>
+                            </div>
+                        </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-zinc-900/40 to-transparent"></div>
+                </div>
+            </section>
+
+            {/* Industrial Stats Grid */}
+            <div className="mx-auto max-w-7xl border-b-2 border-zinc-900 grid grid-cols-1 sm:grid-cols-3">
+                {[
+                    { title: 'Total Varian', val: `${products.length}` },
+                    { title: 'Siap Kirim', val: `${products.filter(p => p.stok_tersedia > 0).length}` },
+                    { title: 'Sistem Bayar', val: 'COD/Transfer' },
+                ].map((s, i) => (
+                    <div key={s.title} className={`p-6 bg-white ${i !== 2 ? 'border-b-2 sm:border-b-0 sm:border-r-2' : ''} border-zinc-900 text-center`}>
+                        <p className="text-4xl font-black text-orange-600">{s.val}</p>
+                        <p className="mt-1 text-[11px] font-black uppercase tracking-widest text-zinc-500">{s.title}</p>
+                    </div>
+                ))}
+            </div>
+
+            {/* Catalog Section */}
+            <section id="katalog" className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+                {featured.length > 0 && (
+                    <div className="mb-20">
+                        <div className="mb-8 flex items-center justify-between border-b-2 border-zinc-900 pb-4">
+                            <h2 className="text-3xl font-black uppercase tracking-tight text-zinc-900">Prioritas Utama</h2>
+                            <span className="hidden sm:block text-xs font-black uppercase tracking-widest text-orange-600">Terpopuler</span>
+                        </div>
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            {featured.map(p => <ProductCard key={p.id} p={p} phone={nomor_whatsapp} />)}
+                        </div>
+                    </div>
+                )}
+
+                {regular.length > 0 && (
+                    <div>
+                        <div className="mb-8 flex items-center justify-between border-b-2 border-zinc-900 pb-4">
+                            <h2 className="text-3xl font-black uppercase tracking-tight text-zinc-900">Katalog Material</h2>
+                        </div>
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            {regular.map(p => <ProductCard key={p.id} p={p} phone={nomor_whatsapp} />)}
+                        </div>
+                    </div>
+                )}
+
+                {products.length === 0 && (
+                    <div className="border-2 border-dashed border-zinc-400 bg-zinc-100 px-6 py-24 text-center">
+                        <p className="text-6xl">🚧</p>
+                        <p className="mt-4 text-xl font-black uppercase tracking-tight text-zinc-900">Katalog Sedang Disiapkan</p>
+                    </div>
+                )}
+            </section>
+
+            {/* Brutalist Footer */}
+            <footer className="border-t-2 border-zinc-900 bg-zinc-900 px-5 py-12 text-center lg:px-8">
+                <p className="text-2xl font-black uppercase tracking-widest text-white">{nama_usaha}</p>
+                <p className="mt-4 text-xs font-bold uppercase tracking-widest text-zinc-500">© {new Date().getFullYear()} · Industrial Theme</p>
             </footer>
 
-            {/* ── Floating WA bubble kanan bawah ──────────────────────────── */}
-            <a href={waUrl(nomor_whatsapp, mainMsg)} target="_blank" rel="noopener noreferrer"
-                className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-emerald-600 hover:bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-900/40 transition active:scale-90"
-                title="Chat WhatsApp">
-                <WaIcon cls="w-7 h-7 text-white" />
-            </a>
+            {/* Sharp Floating CTA */}
+            <div className="fixed bottom-6 right-6 z-50">
+                <a href={waUrl(nomor_whatsapp, mainWaMsg)} target="_blank" rel="noopener noreferrer"
+                    className="flex h-14 w-14 items-center justify-center border-2 border-zinc-900 bg-orange-500 text-white shadow-[4px_4px_0px_#18181b] transition-transform hover:-translate-y-1 hover:shadow-[6px_6px_0px_#18181b]">
+                    <WaIcon cls="w-7 h-7" />
+                </a>
+            </div>
         </div>
     );
 }

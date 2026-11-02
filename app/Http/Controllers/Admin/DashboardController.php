@@ -32,7 +32,7 @@ class DashboardController extends Controller
                 'products_count'  => $p->products_count,
                 'logo_url'        => $p->logo_url   ? asset('storage/' . $p->logo_url)   : null,
                 'banner_url'      => $p->banner_url  ? asset('storage/' . $p->banner_url) : null,
-                'created_at'      => $p->created_at->format('d M Y'),
+                'created_at'      => optional($p->created_at)->format('d M Y') ?? '-',
             ]);
 
         // ── Activity log terbaru ──────────────────────────────
@@ -44,7 +44,7 @@ class DashboardController extends Controller
                 'id'                   => $log->id,
                 'aksi'                 => $log->aksi,
                 'keterangan_perubahan' => $log->keterangan_perubahan,
-                'created_at'           => $log->created_at->diffForHumans(),
+                'created_at'           => optional($log->created_at)->diffForHumans() ?? '-',
                 'admin_nama'           => $log->admin?->nama_admin    ?? '—',
                 'portfolio_nama'       => $log->portfolio?->nama_usaha ?? '(dihapus)',
             ]);

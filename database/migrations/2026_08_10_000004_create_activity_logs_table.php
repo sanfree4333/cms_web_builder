@@ -13,18 +13,22 @@ return new class extends Migration
     {
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_id')
-                  ->constrained('admins')
-                  ->onUpdate('cascade')
-                  ->onDelete('cascade');
-            $table->foreignId('portfolio_id')
-                  ->nullable()
-                  ->constrained('portfolios')
-                  ->onUpdate('cascade')
-                  ->onDelete('set null');
-            $table->string('aksi');
-            $table->text('keterangan_perubahan');
+            $table->unsignedBigInteger('admin_id');
+            $table->unsignedBigInteger('portfolio_id')->nullable();
+            $table->string('action', 50);
+            $table->text('description');
             $table->timestamps();
+
+            // Foreign key constraints dengan cascade delete
+            $table->foreign('admin_id')
+                ->references('id')
+                ->on('admins')
+                ->onDelete('cascade');
+            
+            $table->foreign('portfolio_id')
+                ->references('id')
+                ->on('portfolios')
+                ->onDelete('cascade');
         });
     }
 
